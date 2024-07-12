@@ -10,13 +10,18 @@ from larch import LARCH_PROG_DIR, LARCH_TEMP
 from larch.cli import progress_fetch
 from larch.installed_db import db_add_new_program, db_program_exists, db_update_program
 from larch.passed_to_seed import copy, join_path, unzip
+from larch.utils import sp_print as print, set_print_indentaion_lvl
 
 
 def install_seed(seed: str, is_forced=False):
+
     if is_forced:
         print(Fore.YELLOW + f"Forcefully installing '{seed}'...")
     else:
         print(Fore.GREEN + f"Installing '{seed}'...")
+
+    set_print_indentaion_lvl(1)
+
     seed_code = ""
 
     with open(seed, mode="r", encoding="utf8") as seed_file:
@@ -31,7 +36,7 @@ def install_seed(seed: str, is_forced=False):
     )
 
     if db_program_exists(loc["NAME"]) and not is_forced:
-        print("Program '{}' already exists, stopping".format(loc["NAME"]))
+        print(Fore.RED + "Program '{}' already exists, stopping".format(loc["NAME"]))
         sys.exit(1)
 
     # region Preparing directories
@@ -41,14 +46,24 @@ def install_seed(seed: str, is_forced=False):
     try:
         if temp_dir.exists() and temp_dir.is_dir():
             shutil.rmtree(temp_dir)
+    except PermissionError:
+        print(
+            Fore.RED
+            + f"Cannot remove folder '{temp_dir}'. \
+Make sure that the folder you are trying to delete is not used by a currently running program"
+        )
+        sys.exit(1)
 
+    try:
         if dest_dir.exists() and dest_dir.is_dir():
             shutil.rmtree(dest_dir)
     except PermissionError:
         print(
-            f"Cannot remove folder '{temp_dir}'. \
+            Fore.RED
+            + f"Cannot remove folder '{dest_dir}'. \
 Make sure that the folder you are trying to delete is not used by a currently running program"
         )
+        sys.exit(1)
 
     Path.mkdir(temp_dir)
     Path.mkdir(dest_dir)
@@ -84,10 +99,12 @@ Make sure that the folder you are trying to delete is not used by a currently ru
 
     print(
         Fore.GREEN
-        + f"  '{seed}' was installed successfully! The executable file is '{executable_path}'"
+        + f"'{seed}' was installed successfully! The executable file is '{executable_path}'"
     )
-    print("  Removing temporary files...")
+    print("Removing temporary files...")
     shutil.rmtree(temp_dir)
+
+    set_print_indentaion_lvl(0)
 
 
 def install_seeds(seeds: List[str], is_forced=False):

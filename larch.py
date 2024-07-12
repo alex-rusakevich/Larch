@@ -13,8 +13,6 @@ from colorama import init
 
 
 def main():
-    init(autoreset=True)
-
     parser = argparse.ArgumentParser(
         description="MSLU repo's package management CLI tool"
     )
@@ -23,6 +21,9 @@ def main():
         "--version",
         action="store_true",
         help="show larch version and exit",
+    )
+    parser.add_argument(
+        "-n", "--no-color", action="store_true", help="disable colored output"
     )
 
     subparsers = parser.add_subparsers(
@@ -82,6 +83,8 @@ def main():
     )
 
     args = parser.parse_args()
+
+    init(autoreset=True, strip=args.no_color)
 
     if args.version:
         print(".".join((str(i) for i in larch.__version__)))

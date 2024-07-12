@@ -5,6 +5,7 @@ from typing import Optional
 
 import requests
 from tqdm.auto import tqdm
+from larch.utils import sp_print as print
 
 from larch import LARCH_CACHE
 
@@ -16,7 +17,7 @@ def hashify(obj: str):
 
 
 def progress_fetch(url: str, dest: Optional[str]):
-    print(f"  Downloading '{url}' to '{dest}'...", end=" ")
+    print(f"Downloading '{url}' to '{dest}'...", end=" ")
 
     # Try to find in cache
     url_hash = hashify(url)
