@@ -16,7 +16,7 @@ def hashify(obj: str):
 
 
 def progress_fetch(url: str, dest: Optional[str]):
-    print(f"Downloading '{url}' to '{dest}'...", end=" ")
+    print(f"  Downloading '{url}' to '{dest}'...", end=" ")
 
     # Try to find in cache
     url_hash = hashify(url)

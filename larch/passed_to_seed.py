@@ -1,6 +1,7 @@
 import os.path
 import shutil
 import zipfile
+from colorama import Fore
 
 
 def join_path(*args):
@@ -8,17 +9,17 @@ def join_path(*args):
 
 
 def unzip(archive: str, dest_folder: str):
-    print(f"Unpacking '{archive}' to '{dest_folder}'...", end=" ")
+    print(f"  Unpacking '{archive}' to '{dest_folder}'...", end=" ")
 
     with zipfile.ZipFile(archive, "r") as zip_ref:
         zip_ref.extractall(dest_folder)
 
-    print("Done")
+    print(Fore.GREEN + "Done")
 
 
 def copy(src: str, dst: str):
-    print(f"Copying '{src}' to '{dst}'...", end=" ")
+    print(f"  Copying '{src}' to '{dst}'...", end=" ")
 
     shutil.copytree(src, dst, dirs_exist_ok=True)
 
-    print("Done")
+    print(Fore.GREEN + "Done")

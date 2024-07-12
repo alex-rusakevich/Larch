@@ -37,6 +37,22 @@ cursor.execute(
 connection.commit()
 
 
+def db_get_program_by_name(name):
+    cursor.execute("SELECT * FROM Programs WHERE name = ?", (name,))
+    data = cursor.fetchone()
+
+    return data
+
+
+def db_program_exists(name):
+    data = db_get_program_by_name(name)
+
+    if data is None:
+        return False
+    else:
+        return True
+
+
 def db_add_new_program(
     name, version, description, author, maintainer, url, license, executable_path
 ):
@@ -60,20 +76,30 @@ def db_add_new_program(
     connection.commit()
 
 
-def db_get_program_by_name(name):
-    cursor.execute("SELECT * FROM Programs WHERE name = ?", (name,))
-    data = cursor.fetchone()
+def db_update_program(
+    name, version, description, author, maintainer, url, license, executable_path
+):
+    version = ".".join(str(i) for i in version)
 
-    return data
+    cursor.execute(
+        """UPDATE Programs
+            SET name = ?, version = ?, description = ?, author = ?,
+                maintainer = ?, url = ?, license = ?, executable_path = ?
+            WHERE name = ?""",
+        (
+            name,
+            version,
+            description,
+            author,
+            maintainer,
+            url,
+            license,
+            str(executable_path),
+            name,
+        ),
+    )
 
-
-def db_program_exists(name):
-    data = db_get_program_by_name(name)
-
-    if data is None:
-        return False
-    else:
-        return True
+    connection.commit()
 
 
 def db_remove_program(name):

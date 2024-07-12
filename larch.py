@@ -9,9 +9,12 @@ import larch.uninstall
 import larch.update
 import larch.upgrade
 from larch.installed_db import db_list_installed
+from colorama import init
 
 
 def main():
+    init(autoreset=True)
+
     parser = argparse.ArgumentParser(
         description="MSLU repo's package management CLI tool"
     )
@@ -26,6 +29,7 @@ def main():
         help="larch pkg manager commands", dest="command"
     )
 
+    # region Install command
     install_subparser = subparsers.add_parser(
         "install", help="install program using it's name or larchseed.py file"
     )
@@ -35,7 +39,14 @@ def main():
         action="store_true",
         help="install larchseed.py file instead of using program's name",
     )
+    install_subparser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="ignore program exists or has lower version than installed",
+    )
     install_subparser.add_argument("packages", nargs="+")
+    # endregion
 
     uninstall_subparser = subparsers.add_parser(
         "uninstall", help="remove program using it's name"
@@ -77,10 +88,10 @@ def main():
         sys.exit(0)
 
     if args.command == "install":
-        if args.larchseed:
-            larch.install.install_seeds(args.packages)
+        if args.seed:
+            larch.install.install_seeds(args.packages, args.force)
         else:
-            larch.install.install_pkg_names(args.packages)
+            larch.install.install_pkg_names(args.packages, args.force)
     elif args.command == "uninstall":
         larch.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":
