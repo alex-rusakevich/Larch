@@ -10,7 +10,7 @@ def set_print_indentaion_lvl(int_lvl: int):
 def sp_print(*args, **kwargs):
     global indentaion_level
 
-    if kwargs.pop("no_indentaion", False) is False:
+    if kwargs.pop("no_indentation", False) is False:
         print(indentaion * indentaion_level, end="")
 
     print(*args, **kwargs)

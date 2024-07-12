@@ -2,6 +2,8 @@
 import argparse
 import sys
 
+from colorama import init
+
 import larch
 import larch.install
 import larch.run
@@ -9,7 +11,6 @@ import larch.uninstall
 import larch.update
 import larch.upgrade
 from larch.installed_db import db_list_installed
-from colorama import init
 
 
 def main():

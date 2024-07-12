@@ -2,15 +2,16 @@ import shutil
 import sys
 from pathlib import Path
 from typing import List
-from colorama import Fore
 
+from colorama import Fore
 from RestrictedPython import compile_restricted, safe_globals
 
-from larch import LARCH_PROG_DIR, LARCH_TEMP
+from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
 from larch.cli import progress_fetch
 from larch.installed_db import db_add_new_program, db_program_exists, db_update_program
 from larch.passed_to_seed import copy, join_path, unzip
-from larch.utils import sp_print as print, set_print_indentaion_lvl
+from larch.utils import set_print_indentaion_lvl
+from larch.utils import sp_print as print
 
 
 def install_seed(seed: str, is_forced=False):
@@ -72,6 +73,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     for dest_file_name, download_url in loc["SOURCE"].items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
+    passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
     executable_path = loc["install"](temp_dir, dest_dir)
 
     if db_program_exists(loc["NAME"]):

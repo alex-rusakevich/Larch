@@ -1,9 +1,11 @@
-from larch.installed_db import db_get_program_by_name
-from larch import LARCH_PROG_DIR
-import sys
 import subprocess
+import sys
 from pathlib import Path
+
 from colorama import Fore
+
+from larch import LARCH_PROG_DIR
+from larch.installed_db import db_get_program_by_name
 
 
 def run_by_name(is_detached, name, args_list):

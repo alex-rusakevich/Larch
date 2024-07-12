@@ -4,10 +4,11 @@ from pathlib import Path
 from typing import Optional
 
 import requests
+from colorama import Fore
 from tqdm.auto import tqdm
-from larch.utils import sp_print as print
 
 from larch import LARCH_CACHE
+from larch.utils import sp_print as print
 
 
 def hashify(obj: str):
@@ -33,7 +34,7 @@ def progress_fetch(url: str, dest: Optional[str]):
                 with open(possible_cache_file, "wb") as output:
                     shutil.copyfileobj(raw, output)
     else:
-        print("Using cached")
+        print(Fore.GREEN + "Using cached", no_indentation=True)
 
     shutil.copy(possible_cache_file, dest)
     return
