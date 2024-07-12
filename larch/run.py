@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 
 
-def run_by_name(name, args_list):
+def run_by_name(is_detached, name, args_list):
     prog = db_get_program_by_name(name)
 
     if prog is None:
@@ -13,4 +13,8 @@ def run_by_name(name, args_list):
         sys.exit(1)
 
     executable_path = Path(LARCH_PROG_DIR / name) / prog["executable_path"]
-    subprocess.run([executable_path, *args_list])
+
+    if is_detached:
+        subprocess.Popen([executable_path, *args_list])
+    else:
+        subprocess.run([executable_path, *args_list])

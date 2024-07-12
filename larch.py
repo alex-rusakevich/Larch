@@ -45,6 +45,12 @@ def main():
     run_subparser = subparsers.add_parser("run", help="run program using it's name")
     run_subparser.add_argument("name")
     run_subparser.add_argument("args", nargs="*")
+    run_subparser.add_argument(
+        "-d",
+        "--detached",
+        action="store_true",
+        help="run program and exit larch immediately",
+    )
 
     subparsers.add_parser(
         "update", help="get newest packages' meta info from repository"
@@ -96,7 +102,7 @@ def main():
         else:
             print("Missing the list specificator (e.g. -i)")
     elif args.command == "run":
-        larch.run.run_by_name(args.name, args.args)
+        larch.run.run_by_name(args.detached, args.name, args.args)
     else:
         parser.print_help()
 
