@@ -15,14 +15,13 @@ cursor.execute(
 CREATE TABLE IF NOT EXISTS Programs (
     id INTEGER PRIMARY KEY,
     name VARCHAR(64) NOT NULL UNIQUE,
-    version VARCHAR(32) NOT NULL,
+    version VARCHAR(64) NOT NULL,
     description TEXT NOT NULL,
 
     author TEXT NOT NULL,
     maintainer TEXT NOT NULL,
     url TEXT NOT NULL,
     license TEXT NOT NULL,
-
     executable_path VARCHAR(256) NOT NULL
 )
 """
@@ -38,8 +37,8 @@ connection.commit()
 
 
 def db_get_program_by_name(name):
-    cursor.execute("SELECT * FROM Programs WHERE name = ?", (name,))
-    data = cursor.fetchone()
+    c = cursor.execute("SELECT * FROM Programs WHERE name = ?", (name,))
+    data = c.fetchone()
 
     return data
 
@@ -53,51 +52,24 @@ def db_program_exists(name):
         return True
 
 
-def db_add_new_program(
-    name, version, description, author, maintainer, url, license, executable_path
-):
+def db_upsert_program(name, version, **kwargs):
     version = ".".join(str(i) for i in version)
 
-    cursor.execute(
-        """INSERT INTO Programs (name, version, description, author, maintainer, url, license, executable_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            name,
-            version,
-            description,
-            author,
-            maintainer,
-            url,
-            license,
-            str(executable_path),
-        ),
-    )
+    if not db_program_exists(name):
+        cursor.execute(
+            f"""INSERT INTO Programs (name, version, {', '.join(kwargs.keys())})
+                VALUES (?, ?, {', '.join(len(kwargs.keys()) * '?')})""",
+            (name, version, *kwargs.values()),
+        )
+    else:
+        set_keys = ", ".join(f"{key} = ?" for key in kwargs.keys())
 
-    connection.commit()
-
-
-def db_update_program(
-    name, version, description, author, maintainer, url, license, executable_path
-):
-    version = ".".join(str(i) for i in version)
-
-    cursor.execute(
-        """UPDATE Programs
-            SET name = ?, version = ?, description = ?, author = ?,
-                maintainer = ?, url = ?, license = ?, executable_path = ?
-            WHERE name = ?""",
-        (
-            name,
-            version,
-            description,
-            author,
-            maintainer,
-            url,
-            license,
-            str(executable_path),
-            name,
-        ),
-    )
+        cursor.execute(
+            f"""UPDATE Programs
+                SET name = ?, version = ?, {set_keys}
+                WHERE name = ?""",
+            (name, version, *kwargs.values(), name),
+        )
 
     connection.commit()
 

@@ -1,3 +1,4 @@
+import platform
 import shutil
 import sys
 from pathlib import Path
@@ -8,8 +9,8 @@ from RestrictedPython import compile_restricted, safe_globals
 
 from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
 from larch.cli import progress_fetch
-from larch.installed_db import db_add_new_program, db_program_exists, db_update_program
-from larch.passed_to_seed import copy, join_path, unzip
+from larch.installed_db import db_program_exists, db_upsert_program
+from larch.passed_to_seed import copyfile, copytree, join_path, unzip
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
 
@@ -32,7 +33,13 @@ def install_seed(seed: str, is_forced=False):
     byte_code = compile_restricted(seed_code, "<inline>", "exec")
     exec(
         byte_code,
-        {**safe_globals, "join_path": join_path, "unzip": unzip, "copy": copy},
+        {
+            **safe_globals,
+            "join_path": join_path,
+            "unzip": unzip,
+            "copytree": copytree,
+            "copyfile": copyfile,
+        },
         loc,
     )
 
@@ -70,34 +77,39 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     Path.mkdir(dest_dir)
     # endregion
 
+    # region Check arch
+    arch = loc.get("ARCH", None)
+    current_arch = platform.system() + "_" + platform.architecture()[0]
+
+    if arch is not None:
+        if current_arch not in arch:
+            print(
+                Fore.RED
+                + f"The package '{loc['NAME']}' is not supported by your machine"
+            )
+            print(
+                Fore.RED
+                + f"Package arch: {', '.join(arch)}, your machine's arch: {current_arch}"
+            )
+            sys.exit(1)
+    # endregion
+
     for dest_file_name, download_url in loc["SOURCE"].items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
     passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
-    executable_path = loc["install"](temp_dir, dest_dir)
+    executable_path = loc["install"](temp_dir, dest_dir)  # Execute install func
 
-    if db_program_exists(loc["NAME"]):
-        db_update_program(
-            name=loc["NAME"],
-            version=loc["VERSION"],
-            description=loc["DESCRIPTION"],
-            author=loc["AUTHOR"],
-            maintainer=loc["MAINTAINER"],
-            url=loc["URL"],
-            license=loc["LICENSE"],
-            executable_path=executable_path,
-        )
-    else:
-        db_add_new_program(
-            name=loc["NAME"],
-            version=loc["VERSION"],
-            description=loc["DESCRIPTION"],
-            author=loc["AUTHOR"],
-            maintainer=loc["MAINTAINER"],
-            url=loc["URL"],
-            license=loc["LICENSE"],
-            executable_path=executable_path,
-        )
+    db_upsert_program(
+        name=loc["NAME"],
+        version=loc["VERSION"],
+        description=loc["DESCRIPTION"],
+        author=loc["AUTHOR"],
+        maintainer=loc["MAINTAINER"],
+        url=loc["URL"],
+        license=loc["LICENSE"],
+        executable_path=executable_path,
+    )
 
     print(
         Fore.GREEN

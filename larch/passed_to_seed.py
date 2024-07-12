@@ -42,12 +42,23 @@ def unzip(archive: str, dest_folder: str):
     print(Fore.GREEN + "Done", no_indentation=True)
 
 
-def copy(src: str, dst: str):
+def copytree(src: str, dst: str):
     validate_path(src)
     validate_path(dst)
 
     print(f"Copying '{src}' to '{dst}'...", end=" ")
 
     shutil.copytree(src, dst, dirs_exist_ok=True)
+
+    print(Fore.GREEN + "Done", no_indentation=True)
+
+
+def copyfile(src: str, dst: str):
+    validate_path(src)
+    validate_path(dst)
+
+    print(f"Copying '{src}' to '{dst}'...", end=" ")
+
+    shutil.copy2(src, dst)
 
     print(Fore.GREEN + "Done", no_indentation=True)

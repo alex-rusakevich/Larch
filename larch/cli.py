@@ -27,7 +27,16 @@ def progress_fetch(url: str, dest: Optional[str]):
     if not possible_cache_file.is_file():
         print()
 
-        with requests.get(url, stream=True) as r:
+        with requests.get(
+            url,
+            stream=True,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+                "Accept-Language": "en-US,en;q=0.9,it;q=0.8,es;q=0.7",
+                "Accept-Encoding": "identity",
+                "Referer": "https://google.com/",
+            },
+        ) as r:
             total_length = int(r.headers.get("Content-Length"))
 
             with tqdm.wrapattr(r.raw, "read", total=total_length) as raw:

@@ -14,5 +14,5 @@ SOURCE = {
 
 def install(temp_dir: str, dest_dir: str):
     unzip(join_path(temp_dir, "goldendict.zip"), temp_dir)
-    copy(join_path(temp_dir, "GoldenDict-Windows.ecd1138c-142735"), dest_dir)
+    copytree(join_path(temp_dir, "GoldenDict-Windows.ecd1138c-142735"), dest_dir)
     return "GoldenDict.exe"
