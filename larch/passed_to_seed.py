@@ -1,6 +1,6 @@
 import os.path
-import zipfile
 import shutil
+import zipfile
 
 
 def join_path(*args):

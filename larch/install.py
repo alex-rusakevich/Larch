@@ -1,13 +1,14 @@
-from typing import List
-from RestrictedPython import compile_restricted
-from RestrictedPython import safe_globals
-from larch.passed_to_seed import join_path, unzip, copy
-from larch.cli import progress_fetch
-from larch import LARCH_TEMP, LARCH_PROG_DIR
-from pathlib import Path
-from larch.installed_db import db_add_new_program, db_program_exists
 import shutil
 import sys
+from pathlib import Path
+from typing import List
+
+from RestrictedPython import compile_restricted, safe_globals
+
+from larch import LARCH_PROG_DIR, LARCH_TEMP
+from larch.cli import progress_fetch
+from larch.installed_db import db_add_new_program, db_program_exists
+from larch.passed_to_seed import copy, join_path, unzip
 
 
 def install_seed(seed: str):

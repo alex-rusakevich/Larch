@@ -1,10 +1,12 @@
-from typing import Optional
-import requests
-import shutil
 import hashlib
-from tqdm.auto import tqdm
-from larch import LARCH_CACHE
+import shutil
 from pathlib import Path
+from typing import Optional
+
+import requests
+from tqdm.auto import tqdm
+
+from larch import LARCH_CACHE
 
 
 def hashify(obj: str):

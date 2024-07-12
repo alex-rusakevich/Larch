@@ -1,10 +1,13 @@
-from larch import LARCH_DIR
 import sqlite3
 from pathlib import Path
+
+from larch import LARCH_DIR
 
 LARCH_INSTALLED_DB = Path(LARCH_DIR) / "installed.db"
 
 connection = sqlite3.connect(LARCH_INSTALLED_DB)
+connection.row_factory = sqlite3.Row
+
 cursor = connection.cursor()
 
 cursor.execute(
@@ -57,9 +60,15 @@ def db_add_new_program(
     connection.commit()
 
 
-def db_program_exists(name):
+def db_get_program_by_name(name):
     cursor.execute("SELECT * FROM Programs WHERE name = ?", (name,))
     data = cursor.fetchone()
+
+    return data
+
+
+def db_program_exists(name):
+    data = db_get_program_by_name(name)
 
     if data is None:
         return False
@@ -70,3 +79,9 @@ def db_program_exists(name):
 def db_remove_program(name):
     cursor.execute("DELETE FROM Programs WHERE name = ?", (name,))
     connection.commit()
+
+
+def db_list_installed():
+    cursor.execute("SELECT * FROM Programs ORDER BY name")
+    results = cursor.fetchall()
+    return results

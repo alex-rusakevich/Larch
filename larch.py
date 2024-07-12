@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 import argparse
 import sys
+
 import larch
 import larch.install
+import larch.run
 import larch.uninstall
 import larch.update
 import larch.upgrade
+from larch.installed_db import db_list_installed
 
 
 def main():
@@ -27,8 +30,8 @@ def main():
         "install", help="install program using it's name or larchseed.py file"
     )
     install_subparser.add_argument(
-        "-l",
-        "--larchseed",
+        "-s",
+        "--seed",
         action="store_true",
         help="install larchseed.py file instead of using program's name",
     )
@@ -39,12 +42,26 @@ def main():
     )
     uninstall_subparser.add_argument("packages", nargs="+")
 
+    run_subparser = subparsers.add_parser("run", help="run program using it's name")
+    run_subparser.add_argument("name")
+    run_subparser.add_argument("args", nargs="*")
+
     subparsers.add_parser(
         "update", help="get newest packages' meta info from repository"
     )
 
     subparsers.add_parser(
         "upgrade", help="upgrade installed programs using local packages' meta info"
+    )
+
+    list_subparser = subparsers.add_parser(
+        "list", help="get the list of packages and exit"
+    )
+    list_subparser.add_argument(
+        "-i",
+        "--installed",
+        action="store_true",
+        help="get list of locally installed packages",
     )
 
     args = parser.parse_args()
@@ -64,6 +81,22 @@ def main():
         larch.update.update_pkg_meta()
     elif args.command == "upgrade":
         larch.upgrade.upgrade_installed_packages()
+    elif args.command == "list":
+        if args.installed:
+            inst_list = db_list_installed()
+
+            if inst_list == []:
+                print("No packages installed yet")
+            else:
+                for pkg in inst_list:
+                    pkg_name = pkg["name"]
+                    pkg_ver = pkg["version"]
+
+                    print(f"{pkg_name}=={pkg_ver}")
+        else:
+            print("Missing the list specificator (e.g. -i)")
+    elif args.command == "run":
+        larch.run.run_by_name(args.name, args.args)
     else:
         parser.print_help()
 
