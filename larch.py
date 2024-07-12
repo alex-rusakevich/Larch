@@ -3,6 +3,7 @@ import argparse
 import sys
 import larch
 import larch.install
+import larch.uninstall
 import larch.update
 import larch.upgrade
 
@@ -23,15 +24,17 @@ def main():
     )
 
     install_subparser = subparsers.add_parser(
-        "install", help="install program using it's id or larchseed.py file"
+        "install", help="install program using it's name or larchseed.py file"
     )
     install_subparser.add_argument(
-        "-f",
-        "--file",
+        "-l",
+        "--larchseed",
         action="store_true",
-        help="install larchseed.py file instead of using program's id",
+        help="install larchseed.py file instead of using program's name",
     )
     install_subparser.add_argument("packages", nargs="+")
+
+    subparsers.add_parser("uninstall", help="remove program using it's name")
 
     subparsers.add_parser(
         "update", help="get newest packages' meta info from repository"
@@ -44,14 +47,16 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print("v" + ".".join((str(i) for i in larch.__version__)))
+        print(".".join((str(i) for i in larch.__version__)))
         sys.exit(0)
 
     if args.command == "install":
-        if args.file:
+        if args.larchseed:
             larch.install.install_seeds(args.packages)
         else:
             larch.install.install_pkg_names(args.packages)
+    elif args.command == "uninstall":
+        larch.uninstall.uninstall_pkg_names()
     elif args.command == "update":
         larch.update.update_pkg_meta()
     elif args.command == "upgrade":
