@@ -34,7 +34,10 @@ def main():
     )
     install_subparser.add_argument("packages", nargs="+")
 
-    subparsers.add_parser("uninstall", help="remove program using it's name")
+    uninstall_subparser = subparsers.add_parser(
+        "uninstall", help="remove program using it's name"
+    )
+    uninstall_subparser.add_argument("packages", nargs="+")
 
     subparsers.add_parser(
         "update", help="get newest packages' meta info from repository"
@@ -56,7 +59,7 @@ def main():
         else:
             larch.install.install_pkg_names(args.packages)
     elif args.command == "uninstall":
-        larch.uninstall.uninstall_pkg_names()
+        larch.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":
         larch.update.update_pkg_meta()
     elif args.command == "upgrade":

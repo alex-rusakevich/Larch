@@ -1,12 +1,12 @@
-PKG_NAME = "goldendict-ng"
-PKG_VER = (6, 6, 3)
-PKG_DESC = "The next generation GoldenDict (Supports Qt WebEngine & Qt6)"
+NAME = "goldendict-ng"
+VERSION = (6, 6, 3)
+DESCRIPTION = "The next generation GoldenDict (Supports Qt WebEngine & Qt6)"
 
 AUTHOR = "@xiaoyifang (https://github.com/xiaoyifang)"
+MAINTAINER = "Alexander Rusakevich (mr.alexander.rusakevich@gmail.com)"
 URL = "https://github.com/xiaoyifang/goldendict-ng"
 LICENSE = "GPL3"
 
-MAINTAINER = "Alexander Rusakevich (mr.alexander.rusakevich@gmail.com)"
 SOURCE = {
     "goldendict.zip": "https://github.com/xiaoyifang/goldendict-ng/releases/download/v24.05.05-LiXia.ecd1138c/6.6.3-GoldenDict.exe_windows-2019_20240505.zip"
 }

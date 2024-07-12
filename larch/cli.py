@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def hashify(obj: str):
-    h = hashlib.new("sha256")
+    h = hashlib.new("sha1")
     h.update(obj.encode())
     return h.hexdigest()
 
@@ -30,7 +30,7 @@ def progress_fetch(url: str, dest: Optional[str]):
                 with open(possible_cache_file, "wb") as output:
                     shutil.copyfileobj(raw, output)
     else:
-        print("Used cached")
+        print("Using cached")
 
     shutil.copy(possible_cache_file, dest)
     return

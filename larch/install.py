@@ -5,7 +5,7 @@ from larch.passed_to_seed import join_path, unzip, copy
 from larch.cli import progress_fetch
 from larch import LARCH_TEMP, LARCH_PROG_DIR
 from pathlib import Path
-from larch.installed_db import add_new_program, program_exists
+from larch.installed_db import db_add_new_program, db_program_exists
 import shutil
 import sys
 
@@ -25,13 +25,13 @@ def install_seed(seed: str):
         loc,
     )
 
-    if program_exists(loc["PKG_NAME"]):
-        print("Program '{}' already exists, stopping".format(loc["PKG_NAME"]))
+    if db_program_exists(loc["NAME"]):
+        print("Program '{}' already exists, stopping".format(loc["NAME"]))
         sys.exit(1)
 
     # region Preparing directories
-    temp_dir = Path(LARCH_TEMP / loc["PKG_NAME"])
-    dest_dir = Path(LARCH_PROG_DIR / loc["PKG_NAME"])
+    temp_dir = Path(LARCH_TEMP / loc["NAME"])
+    dest_dir = Path(LARCH_PROG_DIR / loc["NAME"])
 
     if temp_dir.exists() and temp_dir.is_dir():
         shutil.rmtree(temp_dir)
@@ -48,7 +48,16 @@ def install_seed(seed: str):
 
     executable_path = loc["install"](temp_dir, dest_dir)
 
-    add_new_program(loc["PKG_NAME"], loc["PKG_VER"], executable_path)
+    db_add_new_program(
+        name=loc["NAME"],
+        version=loc["VERSION"],
+        description=loc["DESCRIPTION"],
+        author=loc["AUTHOR"],
+        maintainer=loc["MAINTAINER"],
+        url=loc["URL"],
+        license=loc["LICENSE"],
+        executable_path=executable_path,
+    )
 
     print(
         f"'{seed}' was installed successfully! The executable file is '{executable_path}'"
