@@ -1,4 +1,4 @@
-NAME = "antconc"
+NAME = "antconc3"
 VERSION = (3, 5, 9)
 ARCH = ("Windows_64bit",)
 DESCRIPTION = "A freeware corpus analysis toolkit for arrying out corpus linguistics research and data-driven learning"

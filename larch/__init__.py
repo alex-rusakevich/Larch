@@ -11,3 +11,5 @@ Path.mkdir(LARCH_DIR, parents=True, exist_ok=True)
 Path.mkdir(LARCH_TEMP, parents=True, exist_ok=True)
 Path.mkdir(LARCH_PROG_DIR, parents=True, exist_ok=True)
 Path.mkdir(LARCH_CACHE, parents=True, exist_ok=True)
+
+LARCH_REPO = "https://github.com/alex-rusakevich/larchseed_warehouse/raw/master/"

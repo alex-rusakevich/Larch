@@ -1,3 +1,10 @@
+HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9,it;q=0.8,es;q=0.7",
+    "Accept-Encoding": "identity",
+    "Referer": "https://google.com/",
+}
+
 indentaion_level = 0
 indentaion = "  "
 

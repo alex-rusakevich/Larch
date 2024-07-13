@@ -9,6 +9,7 @@ requests = "*"
 restrictedpython = "*"
 colorama = "*"
 sqlalchemy = "*"
+python-dateutil = "*"
 
 [dev-packages]
 isort = "*"
