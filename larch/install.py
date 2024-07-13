@@ -94,6 +94,11 @@ Make sure that the folder you are trying to delete is not used by a currently ru
             sys.exit(1)
     # endregion
 
+    print(
+        Fore.YELLOW
+        + f"By installing '{loc['NAME']}', you accept it's license: {loc['LICENSE']}"
+    )
+
     for dest_file_name, download_url in loc["SOURCE"].items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
@@ -122,6 +127,8 @@ Make sure that the folder you are trying to delete is not used by a currently ru
 
 
 def install_seeds(seeds: List[str], is_forced=False):
+    print("Installing the following seeds: " + Fore.GREEN + "; ".join(seeds))
+
     for seed in seeds:
         install_seed(seed, is_forced)
 

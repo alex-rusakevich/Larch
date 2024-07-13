@@ -8,6 +8,7 @@ tqdm = "*"
 requests = "*"
 restrictedpython = "*"
 colorama = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 isort = "*"

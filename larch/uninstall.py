@@ -28,5 +28,7 @@ def uninstall_pkg_name(pkg_name: str):
 
 
 def uninstall_pkg_names(pkg_names: List[str]):
+    print("Uninstalling the following packages: " + Fore.GREEN + "; ".join(pkg_names))
+
     for pkg_name in pkg_names:
         uninstall_pkg_name(pkg_name)
