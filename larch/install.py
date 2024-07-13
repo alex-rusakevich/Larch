@@ -10,8 +10,9 @@ from sqlalchemy import delete, insert
 
 from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
 from larch.cli import progress_fetch
-from larch.models import Program, loc_db_program_exists
-from larch.models import local_db_conn as loccon
+from larch.database.local import Program
+from larch.database.local import local_db_conn as loccon
+from larch.database.local import program_installed
 from larch.passed_to_seed import copyfile, copytree, join_path, unzip
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
@@ -44,7 +45,7 @@ def install_seed(seed: str, is_forced=False):
         loc,
     )
 
-    if loc_db_program_exists(loc["NAME"]) and not is_forced:
+    if program_installed(loc["NAME"]) and not is_forced:
         print(Fore.RED + "Program '{}' already exists, stopping".format(loc["NAME"]))
         sys.exit(1)
 

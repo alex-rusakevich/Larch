@@ -6,7 +6,7 @@ from colorama import Fore
 from sqlalchemy import select
 
 from larch import LARCH_PROG_DIR
-from larch.models import Program, local_db_engine
+from larch.database.local import Program, local_db_engine
 
 
 def run_by_name(is_detached, name, args_list):

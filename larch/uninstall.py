@@ -6,8 +6,9 @@ from colorama import Fore
 from sqlalchemy import delete
 
 from larch import LARCH_PROG_DIR
-from larch.models import Program, loc_db_program_exists
-from larch.models import local_db_conn as loccon
+from larch.database.local import Program
+from larch.database.local import local_db_conn as loccon
+from larch.database.local import program_installed
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
 
@@ -17,7 +18,7 @@ def uninstall_pkg_name(pkg_name: str):
 
     set_print_indentaion_lvl(1)
 
-    if not loc_db_program_exists(pkg_name):
+    if not program_installed(pkg_name):
         print(Fore.RED + "Program '{}' does not exist, stopping".format(pkg_name))
         sys.exit(1)
 

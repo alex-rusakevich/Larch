@@ -32,7 +32,7 @@ local_db_conn.execute(text("PRAGMA auto_vacuum = 1;"))
 local_db_conn.commit()
 
 
-def loc_db_program_exists(prog_name) -> bool:
+def program_installed(prog_name) -> bool:
     return local_db_conn.scalars(
         select(Program).where(Program.c.name == prog_name).limit(1)
     ).first()

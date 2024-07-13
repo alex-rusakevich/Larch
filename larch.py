@@ -11,8 +11,8 @@ import larch.run
 import larch.uninstall
 import larch.update
 import larch.upgrade
-from larch.models import Program
-from larch.models import local_db_conn as loccon
+from larch.database.local import Program
+from larch.database.local import local_db_conn as loccon
 
 
 def main():
