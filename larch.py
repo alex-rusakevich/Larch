@@ -6,6 +6,7 @@ from colorama import init
 from sqlalchemy import select
 
 import larch
+import larch.clear_cache
 import larch.install
 import larch.run
 import larch.uninstall
@@ -81,6 +82,8 @@ def main():
         "upgrade", help="upgrade installed programs using local packages' meta info"
     )
 
+    subparsers.add_parser("clear-cache", help="remove all cached downloads")
+
     list_subparser = subparsers.add_parser(
         "list", help="get the list of packages and exit"
     )
@@ -110,6 +113,8 @@ def main():
         larch.update.update_pkg_meta(args.force)
     elif args.command == "upgrade":
         larch.upgrade.upgrade_installed_packages()
+    elif args.command == "clear-cache":
+        larch.clear_cache.clear_cache()
     elif args.command == "list":
         if args.installed:
             inst_list = loccon.execute(select(Program).order_by("name"))
