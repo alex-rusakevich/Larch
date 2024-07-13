@@ -16,7 +16,7 @@ def get_remote_timestamp():
     r = requests.get(LARCH_REPO + ".remote-db-timestamp", headers=HEADERS)
     timestamp = r.content.decode("utf-8")
 
-    print(Fore.GREEN + "OK")
+    print(Fore.GREEN + "OK", no_indentation=True)
 
     return parser.parse(timestamp.strip())
 
@@ -27,6 +27,8 @@ def fetch_remote_db():
 
 
 def update_pkg_meta(is_forced=False):
+    set_print_indentaion_lvl(0)
+
     if is_forced:
         print(Fore.YELLOW + "Forcefully updating remote repository information...")
     else:
@@ -50,7 +52,7 @@ def update_pkg_meta(is_forced=False):
         with open(LARCH_DIR / ".remote-db-timestamp", "w", encoding="utf8") as f:
             f.write(str(remote_timestamp))
             f.write("\n")
-        print(Fore.GREEN + "OK")
+        print(Fore.GREEN + "OK", no_indentation=True)
 
         print(Fore.GREEN + "Update procedure has been completed successfully.")
 

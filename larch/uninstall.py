@@ -14,6 +14,8 @@ from larch.utils import sp_print as print
 
 
 def uninstall_pkg_name(pkg_name: str):
+    set_print_indentaion_lvl(0)
+
     print(Fore.GREEN + f"Uninstalling '{pkg_name}'...")
 
     set_print_indentaion_lvl(1)

@@ -19,6 +19,8 @@ from larch.utils import sp_print as print
 
 
 def install_seed(seed: str, is_forced=False):
+    set_print_indentaion_lvl(0)
+
     if is_forced:
         print(Fore.YELLOW + f"Forcefully installing '{seed}'...")
     else:
