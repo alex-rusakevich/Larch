@@ -12,8 +12,8 @@ local_db_conn = local_db_engine.connect()
 
 metadata = db.MetaData()
 
-Program = Table(
-    "programs",
+LocalPackage = Table(
+    "packages",
     metadata,
     Column("id", Integer, primary_key=True),
     Column("name", String, nullable=False, unique=True),
@@ -32,7 +32,13 @@ local_db_conn.execute(text("PRAGMA auto_vacuum = 1;"))
 local_db_conn.commit()
 
 
-def program_installed(prog_name) -> bool:
+def package_installed(pkg_name) -> bool:
     return local_db_conn.scalars(
-        select(Program).where(Program.c.name == prog_name).limit(1)
+        select(LocalPackage).where(LocalPackage.c.name == pkg_name).limit(1)
     ).first()
+
+
+def get_installed_pkg_by_name(pkg_name):
+    return local_db_conn.execute(
+        select(LocalPackage).where(LocalPackage.c.name == pkg_name)
+    ).one_or_none()

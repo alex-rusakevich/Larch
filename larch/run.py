@@ -6,13 +6,13 @@ from colorama import Fore
 from sqlalchemy import select
 
 from larch import LARCH_PROG_DIR
-from larch.database.local import Program, local_db_engine
+from larch.database.local import LocalPackage, local_db_engine
 
 
 def run_by_name(is_detached, name, args_list):
     with local_db_engine.connect() as connection:
         prog = connection.execute(
-            select(Program).where(Program.c.name == name)
+            select(LocalPackage).where(LocalPackage.c.name == name)
         ).one_or_none()
 
     if prog is None:

@@ -12,7 +12,7 @@ import larch.run
 import larch.uninstall
 import larch.update
 import larch.upgrade
-from larch.database.local import Program
+from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
 
 
@@ -117,7 +117,7 @@ def main():
         larch.clear_cache.clear_cache()
     elif args.command == "list":
         if args.installed:
-            inst_list = loccon.execute(select(Program).order_by("name"))
+            inst_list = loccon.execute(select(LocalPackage).order_by("name"))
 
             if inst_list == []:
                 print("No packages installed yet")

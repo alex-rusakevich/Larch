@@ -16,7 +16,7 @@ def get_remote_timestamp():
     r = requests.get(LARCH_REPO + ".remote-db-timestamp", headers=HEADERS)
     timestamp = r.content.decode("utf-8")
 
-    print(Fore.GREEN + "OK", no_indentation=True)
+    print(Fore.GREEN + "OK" + Fore.RESET, no_indentation=True)
 
     return parser.parse(timestamp.strip())
 

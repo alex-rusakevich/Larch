@@ -1,7 +1,8 @@
 import hashlib
 import shutil
+from io import BytesIO
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import requests
 from colorama import Fore
@@ -18,7 +19,7 @@ def hashify(obj: str):
     return h.hexdigest()
 
 
-def progress_fetch(url: str, dest: Optional[str], no_cache=False):
+def progress_fetch(url: str, dest: Optional[Union[str, BytesIO]], no_cache=False):
     if no_cache:
         with requests.get(
             url,
