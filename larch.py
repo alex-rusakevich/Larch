@@ -3,6 +3,7 @@ import argparse
 import sys
 
 from colorama import init
+from sqlalchemy import select
 
 import larch
 import larch.install
@@ -10,7 +11,8 @@ import larch.run
 import larch.uninstall
 import larch.update
 import larch.upgrade
-from larch.installed_db import db_list_installed
+from larch.models import Program
+from larch.models import local_db_conn as loccon
 
 
 def main():
@@ -104,14 +106,14 @@ def main():
         larch.upgrade.upgrade_installed_packages()
     elif args.command == "list":
         if args.installed:
-            inst_list = db_list_installed()
+            inst_list = loccon.execute(select(Program).order_by("name"))
 
             if inst_list == []:
                 print("No packages installed yet")
             else:
                 for pkg in inst_list:
-                    pkg_name = pkg["name"]
-                    pkg_ver = pkg["version"]
+                    pkg_name = pkg.name
+                    pkg_ver = pkg.version
 
                     print(f"{pkg_name}=={pkg_ver}")
         else:

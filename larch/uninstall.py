@@ -3,9 +3,11 @@ import sys
 from typing import List
 
 from colorama import Fore
+from sqlalchemy import delete
 
 from larch import LARCH_PROG_DIR
-from larch.installed_db import db_program_exists, db_remove_program
+from larch.models import Program, loc_db_program_exists
+from larch.models import local_db_conn as loccon
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
 
@@ -15,11 +17,12 @@ def uninstall_pkg_name(pkg_name: str):
 
     set_print_indentaion_lvl(1)
 
-    if not db_program_exists(pkg_name):
+    if not loc_db_program_exists(pkg_name):
         print(Fore.RED + "Program '{}' does not exist, stopping".format(pkg_name))
         sys.exit(1)
 
-    db_remove_program(pkg_name)
+    loccon.execute(delete(Program).where(Program.c.name == pkg_name))
+    loccon.commit()
     shutil.rmtree(LARCH_PROG_DIR / pkg_name)
 
     print(Fore.GREEN + "Uninstalled '{}' successfully".format(pkg_name))

@@ -6,17 +6,18 @@ from typing import List
 
 from colorama import Fore
 from RestrictedPython import compile_restricted, safe_globals
+from sqlalchemy import delete, insert
 
 from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
 from larch.cli import progress_fetch
-from larch.installed_db import db_program_exists, db_upsert_program
+from larch.models import Program, loc_db_program_exists
+from larch.models import local_db_conn as loccon
 from larch.passed_to_seed import copyfile, copytree, join_path, unzip
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
 
 
 def install_seed(seed: str, is_forced=False):
-
     if is_forced:
         print(Fore.YELLOW + f"Forcefully installing '{seed}'...")
     else:
@@ -43,7 +44,7 @@ def install_seed(seed: str, is_forced=False):
         loc,
     )
 
-    if db_program_exists(loc["NAME"]) and not is_forced:
+    if loc_db_program_exists(loc["NAME"]) and not is_forced:
         print(Fore.RED + "Program '{}' already exists, stopping".format(loc["NAME"]))
         sys.exit(1)
 
@@ -105,16 +106,20 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
     executable_path = loc["install"](temp_dir, dest_dir)  # Execute install func
 
-    db_upsert_program(
-        name=loc["NAME"],
-        version=loc["VERSION"],
-        description=loc["DESCRIPTION"],
-        author=loc["AUTHOR"],
-        maintainer=loc["MAINTAINER"],
-        url=loc["URL"],
-        license=loc["LICENSE"],
-        executable_path=executable_path,
+    loccon.execute(delete(Program).where(Program.c.name == loc["NAME"]))
+    loccon.execute(
+        insert(Program).values(
+            name=loc["NAME"],
+            version=".".join((str(i) for i in loc["VERSION"])),
+            description=loc["DESCRIPTION"],
+            author=loc["AUTHOR"],
+            maintainer=loc["MAINTAINER"],
+            url=loc["URL"],
+            license=loc["LICENSE"],
+            executable=executable_path,
+        )
     )
+    loccon.commit()
 
     print(
         Fore.GREEN
