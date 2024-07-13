@@ -67,8 +67,14 @@ def main():
         help="run program and exit larch immediately",
     )
 
-    subparsers.add_parser(
+    update_subparser = subparsers.add_parser(
         "update", help="get newest packages' meta info from repository"
+    )
+    update_subparser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="update remote.db no matter it exists or already up-to-date",
     )
 
     subparsers.add_parser(
@@ -101,7 +107,7 @@ def main():
     elif args.command == "uninstall":
         larch.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":
-        larch.update.update_pkg_meta()
+        larch.update.update_pkg_meta(args.force)
     elif args.command == "upgrade":
         larch.upgrade.upgrade_installed_packages()
     elif args.command == "list":
