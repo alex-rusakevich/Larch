@@ -10,6 +10,7 @@ restrictedpython = "*"
 colorama = "*"
 sqlalchemy = "*"
 python-dateutil = "*"
+tabulate = "*"
 
 [dev-packages]
 isort = "*"

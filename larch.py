@@ -3,7 +3,6 @@ import argparse
 import sys
 
 from colorama import init
-from sqlalchemy import select
 
 import larch
 import larch.clear_cache
@@ -12,8 +11,7 @@ import larch.run
 import larch.uninstall
 import larch.update
 import larch.upgrade
-from larch.database.local import LocalPackage
-from larch.database.local import local_db_conn as loccon
+from larch.list import list_packages
 
 
 def main():
@@ -87,6 +85,12 @@ def main():
         action="store_true",
         help="get list of locally installed packages",
     )
+    list_subparser.add_argument(
+        "-c",
+        "--catalog",
+        action="store_true",
+        help="get list of programs which are present in the repository",
+    )
 
     args = parser.parse_args()
 
@@ -107,19 +111,7 @@ def main():
     elif args.command == "clear-cache":
         larch.clear_cache.clear_cache()
     elif args.command == "list":
-        if args.installed:
-            inst_list = loccon.execute(select(LocalPackage).order_by("name"))
-
-            if inst_list == []:
-                print("No packages installed yet")
-            else:
-                for pkg in inst_list:
-                    pkg_name = pkg.name
-                    pkg_ver = pkg.version
-
-                    print(f"{pkg_name}=={pkg_ver}")
-        else:
-            print("Missing the list specificator (e.g. -i)")
+        list_packages(args.installed, args.catalog)
     elif args.command == "run":
         larch.run.run_by_name(args.detached, args.name, args.args)
     else:
