@@ -8,6 +8,8 @@ MAINTAINER = "Alexander Rusakevich (mr.alexander.rusakevich@gmail.com)"
 URL = "https://laurenceanthony.net/software/antconc/"
 LICENSE = "https://laurenceanthony.net/software/antconc/releases/AntConc424/license.pdf"
 
+DEPENDENCIES = ["vcredist140"]
+
 SOURCE = {
     "antconc.exe": "https://laurenceanthony.net/software/antconc/releases/AntConc359/AntConc_64bit.exe"
 }
