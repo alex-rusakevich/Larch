@@ -29,6 +29,14 @@ RemotePackage = Table(
     Column("arch", String, nullable=False),
 )
 
+RemotePackage = Table(
+    "pkg_meta",
+    metadata,
+    Column("id", Integer, primary_key=True),
+    Column("name", String, nullable=False, unique=True),
+    Column("desc", String, nullable=False),
+)
+
 
 def remote_package_exists(pkg_name: str):
     return remote_db_conn.scalars(

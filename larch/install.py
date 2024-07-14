@@ -45,6 +45,7 @@ def install_seed(seed: str, is_forced=False):
             "unzip": unzip,
             "copytree": copytree,
             "copyfile": copyfile,
+            "CURRENT_ARCH": platform.system() + "_" + platform.architecture()[0],
         },
         loc,
     )

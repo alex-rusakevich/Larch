@@ -1,5 +1,6 @@
 import os
-from datetime import datetime, timezone
+from datetime import datetime
+from pathlib import Path
 
 import requests
 from colorama import Fore
@@ -37,11 +38,17 @@ def update_pkg_meta(is_forced=False):
     set_print_indentaion_lvl(1)
 
     remote_timestamp = get_remote_timestamp()
+    local_timestamp = datetime.min
+
+    if os.path.isfile(LARCH_DIR / ".remote-db-timestamp"):
+        local_timestamp = parser.parse(
+            Path(LARCH_DIR / ".remote-db-timestamp").read_text()
+        )
 
     if (
         os.path.isfile(LARCH_DIR / ".remote-db-timestamp")
         and os.path.isfile(LARCH_DIR / "remote.db")
-        and remote_timestamp <= datetime.now(timezone.utc)
+        and remote_timestamp <= local_timestamp
         and not is_forced
     ):
         print(Fore.YELLOW + "remote.db is already up-to-date, stopping")
