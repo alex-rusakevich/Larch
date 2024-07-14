@@ -21,7 +21,7 @@ def uninstall_pkg_name(pkg_name: str):
     set_print_indentaion_lvl(1)
 
     if not package_installed(pkg_name):
-        print(Fore.RED + "Program '{}' does not exist, stopping".format(pkg_name))
+        print(Fore.RED + "Package '{}' does not exist, stopping".format(pkg_name))
         sys.exit(1)
 
     loccon.execute(delete(LocalPackage).where(LocalPackage.c.name == pkg_name))

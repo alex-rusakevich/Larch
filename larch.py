@@ -36,30 +36,30 @@ def main():
 
     # region Install command
     install_subparser = subparsers.add_parser(
-        "install", help="install program using it's name or larchseed.py file"
+        "install", help="install package using it's name or larchseed.py file"
     )
     install_subparser.add_argument(
         "-f",
         "--force",
         action="store_true",
-        help="ignore program exists or has lower version than installed",
+        help="ignore package exists or has lower version than installed",
     )
     install_subparser.add_argument("packages", nargs="+")
     # endregion
 
     uninstall_subparser = subparsers.add_parser(
-        "uninstall", help="remove program using it's name"
+        "uninstall", help="remove package using it's name"
     )
     uninstall_subparser.add_argument("packages", nargs="+")
 
-    run_subparser = subparsers.add_parser("run", help="run program using it's name")
+    run_subparser = subparsers.add_parser("run", help="run package using it's name")
     run_subparser.add_argument("name")
     run_subparser.add_argument("args", nargs="*")
     run_subparser.add_argument(
         "-d",
         "--detached",
         action="store_true",
-        help="run program and exit larch immediately",
+        help="run package and exit larch immediately",
     )
 
     update_subparser = subparsers.add_parser(
@@ -73,7 +73,7 @@ def main():
     )
 
     subparsers.add_parser(
-        "upgrade", help="upgrade installed programs using local packages' meta info"
+        "upgrade", help="upgrade installed packages using local packages' meta info"
     )
 
     subparsers.add_parser("clear-cache", help="remove all cached downloads")

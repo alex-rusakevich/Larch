@@ -1,9 +1,10 @@
 import os
 import platform
+import re
 import shutil
 import sys
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Tuple
 
 from colorama import Fore
 from RestrictedPython import compile_restricted, safe_globals
@@ -138,11 +139,20 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     set_print_indentaion_lvl(0)
 
 
-def install_pkg_name(pkg_name: str, is_forced=False):
+def install_pkg(
+    pkg_name: str,
+    desired_ver: Optional[Tuple[str, str]] = None,
+    is_forced: bool = False,
+):
+    ver_str = ""
+
+    if desired_ver is not None:
+        ver_str = "".join(desired_ver)
+
     if is_forced:
-        print(Fore.YELLOW + f"Forcefully installing '{pkg_name}'...")
+        print(Fore.YELLOW + f"Forcefully installing '{pkg_name}{ver_str}'...")
     else:
-        print(Fore.GREEN + f"Installing '{pkg_name}'...")
+        print(f"Installing '{pkg_name}{ver_str}'...")
 
     set_print_indentaion_lvl(1)
 
@@ -159,13 +169,16 @@ def install_pkg_name(pkg_name: str, is_forced=False):
         print(Fore.RED + f"Remote package with name '{pkg_name}' does not exist")
         sys.exit(1)
 
-    remote_pkg = get_remote_candidate(pkg_name)
+    remote_pkg = get_remote_candidate(pkg_name, desired_ver)
 
     if remote_pkg is None:
         print(
-            Fore.RED + f"No candidate for package {pkg_name} was found for your system."
+            Fore.RED
+            + f"No candidate for package '{pkg_name}{ver_str}' was found for your system."
         )
         sys.exit(1)
+    else:
+        print(Fore.GREEN + f"Found package: {remote_pkg.name}=={remote_pkg.ver}")
 
     progress_fetch(
         LARCH_REPO
@@ -180,6 +193,9 @@ def install_pkg_name(pkg_name: str, is_forced=False):
 def install_packages(pkg_names: List[str], is_forced=False):
     set_print_indentaion_lvl(0)
 
+    for i, val in enumerate(pkg_names):
+        pkg_names[i] = re.sub(r"\s*", "", val)
+
     if is_forced:
         print(
             Fore.YELLOW
@@ -189,11 +205,22 @@ def install_packages(pkg_names: List[str], is_forced=False):
     else:
         print("Installing the following packages: " + Fore.GREEN + "; ".join(pkg_names))
 
-    for pkg_name in pkg_names:
-        _, file_name = os.path.split(pkg_name)
+    for pkg in pkg_names:
+        _, file_name = os.path.split(pkg)
         set_print_indentaion_lvl(0)
 
         if file_name == "larchseed.py":
-            install_seed(pkg_name, is_forced)
+            install_seed(pkg, is_forced)
         else:
-            install_pkg_name(pkg_name, is_forced)
+            pkg_name = re.sub(r"(>=|==|<=|<|>).*", "", pkg).strip()
+
+            pkg_ver = re.search(r"(>=|==|<=|<|>)(.*)", pkg)
+            if pkg_ver:
+                pkg_ver = (pkg_ver.group(1), pkg_ver.group(2).strip())
+
+            if type(pkg_ver) in (list, tuple):
+                if not pkg_ver[0] or not pkg_ver[1]:
+                    print(Fore.RED + f"Wrong version format: '{pkg}', stopping")
+                    sys.exit(1)
+
+            install_pkg(pkg_name, pkg_ver, is_forced=is_forced)

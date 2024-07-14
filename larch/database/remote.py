@@ -1,5 +1,6 @@
 import platform
 from pathlib import Path
+from typing import Optional, Tuple
 
 import sqlalchemy as db
 from colorama import Fore
@@ -8,6 +9,7 @@ from sqlalchemy import Column, Integer, String, Table, or_, select
 from larch import LARCH_DIR
 from larch.update import update_pkg_meta
 from larch.utils import sp_print as print
+from larch.utils import str_to_version_tuple
 
 LARCH_REMOTE_DB = Path(LARCH_DIR) / "remote.db"
 
@@ -44,17 +46,22 @@ def remote_package_exists(pkg_name: str):
     ).first()
 
 
-def get_remote_candidate(pkg_name: str):
-    def get_version_tuple(remote_pkg: Table) -> tuple:
-        result = []
+def get_remote_candidate(pkg_name: str, desired_ver: Optional[Tuple[str, str]]):
+    def candidate_version_suits(candidate):
+        operation, desired_ver_tuple = desired_ver[0], str_to_version_tuple(
+            desired_ver[1]
+        )
+        candidate_ver = str_to_version_tuple(candidate.ver)
 
-        for i in remote_pkg.ver.split("."):
-            if i.isdigit():
-                result.append(int(i))
-            else:
-                result.append(i)
+        compare_candidate_to = {
+            "==": candidate_ver.__eq__,
+            ">=": candidate_ver.__ge__,
+            "<=": candidate_ver.__le__,
+            ">": candidate_ver.__gt__,
+            "<": candidate_ver.__lt__,
+        }[operation]
 
-        return tuple(result)
+        return compare_candidate_to(desired_ver_tuple)
 
     current_arch = platform.system() + "_" + platform.architecture()[0]
 
@@ -65,9 +72,12 @@ def get_remote_candidate(pkg_name: str):
     )
 
     candidates = list(candidates)
-    candidates.sort(key=get_version_tuple)
+    candidates.sort(key=lambda x: str_to_version_tuple(x.ver))
 
-    if candidates is not None:
+    if desired_ver is not None:
+        candidates = list(filter(candidate_version_suits, candidates))
+
+    if candidates not in [None, [], ()]:
         return candidates[0]
     else:
         return None

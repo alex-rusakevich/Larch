@@ -21,3 +21,15 @@ def sp_print(*args, **kwargs):
         print(indentaion * indentaion_level, end="")
 
     print(*args, **kwargs)
+
+
+def str_to_version_tuple(ver: str) -> tuple:
+    result = []
+
+    for i in ver.split("."):
+        if i.isdigit():
+            result.append(int(i))
+        else:
+            result.append(i)
+
+    return tuple(result)
