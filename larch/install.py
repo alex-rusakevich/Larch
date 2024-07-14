@@ -99,7 +99,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
 
     if deps:
         print("Installing dependencies: " + Fore.GREEN + "; ".join(deps) + Fore.RESET)
-        install_packages(deps)
+        install_packages(deps, is_forced=True)
     # endregion
 
     for dest_file_name, download_url in loc.get("SOURCE", {}).items():
@@ -176,14 +176,24 @@ def install_pkg(
     else:
         print(Fore.GREEN + f"Found package: {remote_pkg.name}=={remote_pkg.ver}")
 
+    seed_path = os.path.join(
+        LARCH_TEMP,
+        ".seeds",
+        remote_pkg.name,
+        remote_pkg.ver,
+        remote_pkg.arch,
+        "larchseed.py",
+    )
+    Path(os.path.dirname(seed_path)).mkdir(parents=True, exist_ok=True)
+
     progress_fetch(
         LARCH_REPO
         + f"packages/{remote_pkg.name}/{remote_pkg.ver}/{remote_pkg.arch}/larchseed.py",
-        LARCH_TEMP / "larchseed.py",
+        seed_path,
     )
 
-    install_seed(LARCH_TEMP / "larchseed.py", is_forced)
-    os.remove(LARCH_TEMP / "larchseed.py")
+    install_seed(seed_path, is_forced)
+    os.remove(seed_path)
 
 
 def install_packages(pkg_names: List[str], is_forced=False):
