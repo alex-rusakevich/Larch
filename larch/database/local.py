@@ -23,7 +23,7 @@ LocalPackage = Table(
     Column("maintainer", String, nullable=False),
     Column("url", String, nullable=False),
     Column("license", String, nullable=False),
-    Column("executable", String, nullable=False),
+    Column("executable", String, nullable=True),
 )
 
 metadata.create_all(local_db_engine)

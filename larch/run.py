@@ -16,7 +16,11 @@ def run_by_name(is_detached, name, args_list):
         ).one_or_none()
 
     if prog is None:
-        print(Fore.RED + f"Program '{name}' does not exist, stopping")
+        print(Fore.RED + f"Package '{name}' does not exist, stopping")
+        sys.exit(1)
+
+    if prog.executable is None:
+        print(Fore.RED + f"No executable registered for the package '{name}'")
         sys.exit(1)
 
     executable_path = Path(LARCH_PROG_DIR / name) / prog.executable

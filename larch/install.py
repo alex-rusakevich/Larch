@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from colorama import Fore
-from RestrictedPython import compile_restricted, safe_globals
 from sqlalchemy import delete, insert
 
 from larch import LARCH_PROG_DIR, LARCH_REPO, LARCH_TEMP, passed_to_seed
@@ -16,7 +15,7 @@ from larch.database.local import LocalPackage, get_installed_pkg_by_name
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.database.remote import get_remote_candidate, remote_package_exists
-from larch.passed_to_seed import copyfile, copytree, join_path, unzip
+from larch.safe_exec import safe_exec_seed
 from larch.utils import set_print_indentaion_lvl
 from larch.utils import sp_print as print
 
@@ -34,20 +33,7 @@ def install_seed(seed: str, is_forced=False):
     with open(seed, mode="r", encoding="utf8") as seed_file:
         seed_code = seed_file.read()
 
-    loc = {}
-    byte_code = compile_restricted(seed_code, "<inline>", "exec")
-    exec(
-        byte_code,
-        {
-            **safe_globals,
-            "join_path": join_path,
-            "unzip": unzip,
-            "copytree": copytree,
-            "copyfile": copyfile,
-            "CURRENT_ARCH": platform.system() + "_" + platform.architecture()[0],
-        },
-        loc,
-    )
+    loc = safe_exec_seed(seed_code)
 
     if package_installed(loc["NAME"]) and not is_forced:
         print(
@@ -108,11 +94,22 @@ Make sure that the folder you are trying to delete is not used by a currently ru
         + f"By installing '{loc['NAME']}', you accept it's license: {loc['LICENSE']}"
     )
 
-    for dest_file_name, download_url in loc["SOURCE"].items():
+    # region Install dependencies
+    deps = loc.get("DEPENDENCIES", None)
+
+    if deps:
+        print("Installing dependencies: " + Fore.GREEN + "; ".join(deps) + Fore.RESET)
+        install_packages(deps)
+    # endregion
+
+    for dest_file_name, download_url in loc.get("SOURCE", {}).items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
     passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
     executable_path = loc["install"](temp_dir, dest_dir)  # Execute install func
+
+    # region Registering package
+    shutil.copy(seed, dest_dir)
 
     loccon.execute(delete(LocalPackage).where(LocalPackage.c.name == loc["NAME"]))
     loccon.execute(
@@ -128,11 +125,10 @@ Make sure that the folder you are trying to delete is not used by a currently ru
         )
     )
     loccon.commit()
+    # endregion
 
-    print(
-        Fore.GREEN
-        + f"'{seed}' was installed successfully! The executable file is '{executable_path}'"
-    )
+    print(Fore.GREEN + f"'{seed}' was installed successfully!")
+    executable_path and print(f"The executable file is '{executable_path}'")
     print("Removing temporary files...")
     shutil.rmtree(temp_dir)
 
