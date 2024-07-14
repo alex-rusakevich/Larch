@@ -6,5 +6,13 @@
             "source.organizeImports": "always"
         },
     },
-    "python.analysis.autoImportCompletions": false
+    "python.analysis.autoImportCompletions": false,
+    "cSpell.words": [
+        "endregion",
+        "KHTML",
+        "larchseed",
+        "loccon",
+        "Referer",
+        "sqlalchemy"
+    ]
 }

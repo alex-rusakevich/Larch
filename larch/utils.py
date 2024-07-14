@@ -5,20 +5,20 @@ HEADERS = {
     "Referer": "https://google.com/",
 }
 
-indentaion_level = 0
-indentaion = "  "
+indentation_level = 0
+indentation = "  "
 
 
-def set_print_indentaion_lvl(int_lvl: int):
-    global indentaion_level
-    indentaion_level = int_lvl
+def set_print_indentation_lvl(int_lvl: int):
+    global indentation_level
+    indentation_level = int_lvl
 
 
 def sp_print(*args, **kwargs):
-    global indentaion_level
+    global indentation_level
 
     if kwargs.pop("no_indentation", False) is False:
-        print(indentaion * indentaion_level, end="")
+        print(indentation * indentation_level, end="")
 
     print(*args, **kwargs)
 

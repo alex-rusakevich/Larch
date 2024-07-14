@@ -8,7 +8,7 @@ from dateutil import parser
 
 from larch import LARCH_DIR, LARCH_REPO
 from larch.cli import progress_fetch
-from larch.utils import HEADERS, set_print_indentaion_lvl
+from larch.utils import HEADERS, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 
@@ -28,14 +28,14 @@ def fetch_remote_db():
 
 
 def update_pkg_meta(is_forced=False):
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)
 
     if is_forced:
         print(Fore.YELLOW + "Forcefully updating remote repository information...")
     else:
         print("Updating remote repository information...")
 
-    set_print_indentaion_lvl(1)
+    set_print_indentation_lvl(1)
 
     remote_timestamp = get_remote_timestamp()
     local_timestamp = datetime.min
@@ -63,4 +63,4 @@ def update_pkg_meta(is_forced=False):
 
         print(Fore.GREEN + "Update procedure has been completed successfully.")
 
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)

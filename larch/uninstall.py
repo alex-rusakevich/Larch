@@ -12,16 +12,16 @@ from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.safe_exec import safe_exec_seed
-from larch.utils import set_print_indentaion_lvl
+from larch.utils import set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 
 def uninstall_pkg_name(pkg_name: str):
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)
 
     print(Fore.GREEN + f"Uninstalling '{pkg_name}'...")
 
-    set_print_indentaion_lvl(1)
+    set_print_indentation_lvl(1)
 
     if not package_installed(pkg_name):
         print(Fore.RED + "Package '{}' does not exist, stopping".format(pkg_name))
@@ -55,7 +55,7 @@ def uninstall_pkg_name(pkg_name: str):
 
     print(Fore.GREEN + "Uninstalled '{}' successfully".format(pkg_name))
 
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)
 
 
 def uninstall_pkg_names(pkg_names: List[str]):

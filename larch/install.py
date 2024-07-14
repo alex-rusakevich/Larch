@@ -16,7 +16,7 @@ from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.database.remote import get_remote_candidate, remote_package_exists
 from larch.safe_exec import safe_exec_seed
-from larch.utils import set_print_indentaion_lvl
+from larch.utils import set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 
@@ -26,7 +26,7 @@ def install_seed(seed: str, is_forced=False):
     else:
         print(Fore.GREEN + f"Installing '{seed}'...")
 
-    set_print_indentaion_lvl(1)
+    set_print_indentation_lvl(1)
 
     seed_code = ""
 
@@ -132,7 +132,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     print("Removing temporary files...")
     shutil.rmtree(temp_dir)
 
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)
 
 
 def install_pkg(
@@ -150,7 +150,7 @@ def install_pkg(
     else:
         print(f"Installing '{pkg_name}{ver_str}'...")
 
-    set_print_indentaion_lvl(1)
+    set_print_indentation_lvl(1)
 
     package = get_installed_pkg_by_name(pkg_name)
 
@@ -197,7 +197,7 @@ def install_pkg(
 
 
 def install_packages(pkg_names: List[str], is_forced=False):
-    set_print_indentaion_lvl(0)
+    set_print_indentation_lvl(0)
 
     for i, val in enumerate(pkg_names):
         pkg_names[i] = re.sub(r"\s*", "", val)
@@ -213,7 +213,7 @@ def install_packages(pkg_names: List[str], is_forced=False):
 
     for pkg in pkg_names:
         _, file_name = os.path.split(pkg)
-        set_print_indentaion_lvl(0)
+        set_print_indentation_lvl(0)
 
         if file_name == "larchseed.py":
             install_seed(pkg, is_forced)
