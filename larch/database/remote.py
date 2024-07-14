@@ -29,7 +29,7 @@ RemotePackage = Table(
     Column("arch", String, nullable=False),
 )
 
-RemotePackage = Table(
+RemotePkgMeta = Table(
     "pkg_meta",
     metadata,
     Column("id", Integer, primary_key=True),

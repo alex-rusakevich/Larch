@@ -39,12 +39,6 @@ def main():
         "install", help="install program using it's name or larchseed.py file"
     )
     install_subparser.add_argument(
-        "-s",
-        "--seed",
-        action="store_true",
-        help="install larchseed.py file instead of using program's name",
-    )
-    install_subparser.add_argument(
         "-f",
         "--force",
         action="store_true",
@@ -103,10 +97,7 @@ def main():
         sys.exit(0)
 
     if args.command == "install":
-        if args.seed:
-            larch.install.install_seeds(args.packages, args.force)
-        else:
-            larch.install.install_pkg_names(args.packages, args.force)
+        larch.install.install_packages(args.packages, args.force)
     elif args.command == "uninstall":
         larch.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":

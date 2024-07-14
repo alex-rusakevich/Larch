@@ -21,8 +21,6 @@ from larch.utils import sp_print as print
 
 
 def install_seed(seed: str, is_forced=False):
-    set_print_indentaion_lvl(0)
-
     if is_forced:
         print(Fore.YELLOW + f"Forcefully installing '{seed}'...")
     else:
@@ -51,7 +49,10 @@ def install_seed(seed: str, is_forced=False):
     )
 
     if package_installed(loc["NAME"]) and not is_forced:
-        print(Fore.RED + "Program '{}' already exists, stopping".format(loc["NAME"]))
+        print(
+            Fore.RED
+            + "Package '{}' has been installed already, stopping".format(loc["NAME"])
+        )
         sys.exit(1)
 
     # region Preparing directories
@@ -137,21 +138,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     set_print_indentaion_lvl(0)
 
 
-def install_seeds(seeds: List[str], is_forced=False):
-    set_print_indentaion_lvl(0)
-
-    if is_forced:
-        print(Fore.YELLOW + "Installing the following seeds: " + "; ".join(seeds))
-    else:
-        print("Installing the following seeds: " + Fore.GREEN + "; ".join(seeds))
-
-    for seed in seeds:
-        install_seed(seed, is_forced)
-
-
 def install_pkg_name(pkg_name: str, is_forced=False):
-    set_print_indentaion_lvl(0)
-
     if is_forced:
         print(Fore.YELLOW + f"Forcefully installing '{pkg_name}'...")
     else:
@@ -180,26 +167,33 @@ def install_pkg_name(pkg_name: str, is_forced=False):
         )
         sys.exit(1)
 
-    print("Fetching larchseed.py...", end=" ")
     progress_fetch(
         LARCH_REPO
         + f"packages/{remote_pkg.name}/{remote_pkg.ver}/{remote_pkg.arch}/larchseed.py",
         LARCH_TEMP / "larchseed.py",
     )
 
-    install_seed(LARCH_TEMP / "larchseed.py")
+    install_seed(LARCH_TEMP / "larchseed.py", is_forced)
     os.remove(LARCH_TEMP / "larchseed.py")
 
 
-def install_pkg_names(pkg_names: List[str], is_forced=False):
+def install_packages(pkg_names: List[str], is_forced=False):
     set_print_indentaion_lvl(0)
 
     if is_forced:
         print(
-            Fore.YELLOW + "Installing the following packages: " + "; ".join(pkg_names)
+            Fore.YELLOW
+            + "Forcefully installing the following packages: "
+            + "; ".join(pkg_names)
         )
     else:
         print("Installing the following packages: " + Fore.GREEN + "; ".join(pkg_names))
 
     for pkg_name in pkg_names:
-        install_pkg_name(pkg_name, is_forced)
+        _, file_name = os.path.split(pkg_name)
+        set_print_indentaion_lvl(0)
+
+        if file_name == "larchseed.py":
+            install_seed(pkg_name, is_forced)
+        else:
+            install_pkg_name(pkg_name, is_forced)
