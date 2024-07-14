@@ -7,12 +7,11 @@ from colorama import Fore
 from sqlalchemy import delete
 
 from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
-from larch.cli import progress_fetch
 from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.safe_exec import safe_exec_seed
-from larch.utils import set_print_indentation_lvl
+from larch.utils import progress_fetch, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 

@@ -7,8 +7,7 @@ from colorama import Fore
 from dateutil import parser
 
 from larch import LARCH_DIR, LARCH_REPO
-from larch.cli import progress_fetch
-from larch.utils import HEADERS, set_print_indentation_lvl
+from larch.utils import HEADERS, progress_fetch, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 
