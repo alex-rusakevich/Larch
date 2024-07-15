@@ -4,7 +4,6 @@ import shutil
 import subprocess
 import sys
 import zipfile
-from pathlib import Path
 
 from colorama import Fore
 
@@ -28,12 +27,6 @@ def validate_path(path: str):
             Fore.RED
             + f"larchseed.py attempted to access a path outside of destination and temp dirs: '{path}'"
         )
-        sys.exit(1)
-
-
-def validate_file_exists(path: str):
-    if not Path(path).is_file():
-        print(Fore.RED + f"The file does not exist: '{path}'")
         sys.exit(1)
 
 
@@ -75,9 +68,6 @@ def copyfile(src: str, dst: str):
     print(Fore.GREEN + "Done", no_indentation=True)
 
 
-def run_exe(path_to_exe: str, *args):
-    validate_path(path_to_exe)
-    validate_file_exists(path_to_exe)
-
-    print(f"Running '{path_to_exe}{''.join(' ' + i for i in args)}'")
-    subprocess.run([path_to_exe, *args])
+def run(command: str, *args):
+    print(f"Running '{command}{''.join(' ' + i for i in args)}'")
+    subprocess.run([command, *args])

@@ -19,5 +19,5 @@ SOURCE = {
 ENTRY_POINT = "antconc.exe"
 
 
-def install(temp_dir: str, dest_dir: str):
-    copyfile(join_path(temp_dir, "antconc.exe"), dest_dir)
+def install(temp_dir, dest_dir):
+    copyfile(temp_dir / "antconc.exe", dest_dir)

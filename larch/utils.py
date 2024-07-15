@@ -68,14 +68,14 @@ def progress_fetch(url: str, dest: Optional[Union[str, BytesIO]], no_cache=False
 
         return
 
-    print(f"Fetching '{url}' to '{dest}'...", end=" ")
+    sp_print(f"Fetching '{url}' to '{dest}'...", end=" ")
 
     # Try to find in cache
     url_hash = hashify(url)
     possible_cache_file = Path(LARCH_CACHE / url_hash)
 
     if not possible_cache_file.is_file():
-        print()
+        sp_print()
 
         with requests.get(
             url,
@@ -88,7 +88,7 @@ def progress_fetch(url: str, dest: Optional[Union[str, BytesIO]], no_cache=False
                 with open(possible_cache_file, "wb") as output:
                     shutil.copyfileobj(raw, output)
     else:
-        print(Fore.GREEN + "Using cached", no_indentation=True)
+        sp_print(Fore.GREEN + "Using cached", no_indentation=True)
 
     shutil.copy(possible_cache_file, dest)
     return
