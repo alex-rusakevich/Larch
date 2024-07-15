@@ -2,7 +2,7 @@ import platform
 
 from RestrictedPython import compile_restricted, safe_globals
 
-from larch.passed_to_seed import copyfile, copytree, join_path, run, unzip
+from larch.sandbox.passed_funcs import copyfile, copytree, join_path, run, unzip
 
 
 def safe_exec_seed(code: str):

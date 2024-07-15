@@ -4,13 +4,13 @@ import sys
 from colorama import init
 
 import larch
-import larch.clear_cache
-import larch.install
-import larch.run
-import larch.uninstall
-import larch.update
-import larch.upgrade
-from larch.list import list_packages
+import larch.commands.clear_cache
+import larch.commands.install
+import larch.commands.run
+import larch.commands.uninstall
+import larch.commands.update
+import larch.commands.upgrade
+from larch.commands.list import list_packages
 from larch.utils import sp_print as print
 
 
@@ -101,18 +101,18 @@ def run_cli():
         sys.exit(0)
 
     if args.command == "install":
-        larch.install.install_packages(args.packages, args.force)
+        larch.commands.install.install_packages(args.packages, args.force)
     elif args.command == "uninstall":
-        larch.uninstall.uninstall_pkg_names(args.packages)
+        larch.commands.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":
-        larch.update.update_pkg_meta(args.force)
+        larch.commands.update.update_pkg_meta(args.force)
     elif args.command == "upgrade":
-        larch.upgrade.upgrade_installed_packages()
+        larch.commands.upgrade.upgrade_installed_packages()
     elif args.command == "clear-cache":
-        larch.clear_cache.clear_cache()
+        larch.commands.clear_cache.clear_cache()
     elif args.command == "list":
         list_packages(args.installed, args.catalog)
     elif args.command == "run":
-        larch.run.run_by_name(args.detached, args.name, args.args)
+        larch.commands.run.run_by_name(args.detached, args.name, args.args)
     else:
         parser.print_help()

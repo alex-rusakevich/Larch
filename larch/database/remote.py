@@ -7,7 +7,7 @@ from colorama import Fore
 from sqlalchemy import Column, Integer, String, Table, or_, select
 
 from larch import LARCH_DIR
-from larch.update import update_pkg_meta
+from larch.commands.update import update_pkg_meta
 from larch.utils import sp_print as print
 from larch.utils import str_to_version_tuple
 

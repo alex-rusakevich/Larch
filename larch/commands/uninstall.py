@@ -6,11 +6,12 @@ from typing import List
 from colorama import Fore
 from sqlalchemy import delete
 
-from larch import LARCH_PROG_DIR, LARCH_TEMP, passed_to_seed
+from larch import LARCH_PROG_DIR, LARCH_TEMP
 from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
-from larch.safe_exec import safe_exec_seed
+from larch.sandbox import passed_funcs
+from larch.sandbox.safe_exec import safe_exec_seed
 from larch.utils import progress_fetch, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
@@ -38,7 +39,7 @@ def uninstall_pkg_name(pkg_name: str):
         for dest_file_name, download_url in loc.get("SOURCE", {}).items():
             progress_fetch(download_url, temp_dir / dest_file_name)
 
-        passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
+        passed_funcs.restricted_dirs = [temp_dir, dest_dir]
         loc["uninstall"](temp_dir, dest_dir)
     # endregion
 

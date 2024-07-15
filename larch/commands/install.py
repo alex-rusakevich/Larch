@@ -9,12 +9,13 @@ from typing import List, Optional, Tuple
 from colorama import Fore
 from sqlalchemy import delete, insert
 
-from larch import LARCH_PROG_DIR, LARCH_REPO, LARCH_TEMP, passed_to_seed
+from larch import LARCH_PROG_DIR, LARCH_REPO, LARCH_TEMP
 from larch.database.local import LocalPackage, get_installed_pkg_by_name
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.database.remote import get_remote_candidate, remote_package_exists
-from larch.safe_exec import safe_exec_seed
+from larch.sandbox import passed_funcs
+from larch.sandbox.safe_exec import safe_exec_seed
 from larch.utils import progress_fetch, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
@@ -104,7 +105,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     for dest_file_name, download_url in loc.get("SOURCE", {}).items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
-    passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
+    passed_funcs.restricted_dirs = [temp_dir, dest_dir]
     loc["install"](temp_dir, dest_dir)  # Execute install func
 
     # region Registering package
