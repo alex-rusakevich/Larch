@@ -110,12 +110,23 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     # region Registering package
     shutil.copy(seed, dest_dir)
     entry_point = loc.get("ENTRY_POINT", None)
+    ver = loc["VERSION"]
+
+    if type(ver) in (tuple, list):
+        ver = ".".join((str(i) for i in loc["VERSION"]))
+    elif type(ver) is str:
+        pass
+    else:
+        print(
+            Fore.RED
+            + f"Unknown VERSION type: {type(ver)}, allowed types are str, tuple and list"
+        )
 
     loccon.execute(delete(LocalPackage).where(LocalPackage.c.name == loc["NAME"]))
     loccon.execute(
         insert(LocalPackage).values(
             name=loc["NAME"],
-            version=".".join((str(i) for i in loc["VERSION"])),
+            version=ver,
             description=loc["DESCRIPTION"],
             author=loc["AUTHOR"],
             maintainer=loc["MAINTAINER"],
@@ -127,7 +138,7 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     loccon.commit()
     # endregion
 
-    print(Fore.GREEN + f"'{seed}' was installed successfully!")
+    print(Fore.GREEN + f"'{loc['NAME']}=={ver}' was installed successfully!")
     entry_point and print(f"The entry point is '{entry_point}'")
     print("Removing temporary files...")
     shutil.rmtree(temp_dir)
@@ -155,10 +166,7 @@ def install_pkg(
     package = get_installed_pkg_by_name(pkg_name)
 
     if package is not None and not is_forced:
-        print(
-            Fore.RED
-            + f"Package '{pkg_name}' is already installed. Did you mean 'larch.py update'?"
-        )
+        print(Fore.RED + f"Package '{pkg_name}' is already installed, stopping")
         sys.exit(1)
 
     if not remote_package_exists(pkg_name):
