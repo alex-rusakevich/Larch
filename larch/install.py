@@ -105,10 +105,11 @@ Make sure that the folder you are trying to delete is not used by a currently ru
         progress_fetch(download_url, temp_dir / dest_file_name)
 
     passed_to_seed.restricted_dirs = [temp_dir, dest_dir]
-    executable_path = loc["install"](temp_dir, dest_dir)  # Execute install func
+    loc["install"](temp_dir, dest_dir)  # Execute install func
 
     # region Registering package
     shutil.copy(seed, dest_dir)
+    entry_point = loc.get("ENTRY_POINT", None)
 
     loccon.execute(delete(LocalPackage).where(LocalPackage.c.name == loc["NAME"]))
     loccon.execute(
@@ -120,14 +121,14 @@ Make sure that the folder you are trying to delete is not used by a currently ru
             maintainer=loc["MAINTAINER"],
             url=loc["URL"],
             license=loc["LICENSE"],
-            executable=executable_path,
+            entry_point=entry_point,
         )
     )
     loccon.commit()
     # endregion
 
     print(Fore.GREEN + f"'{seed}' was installed successfully!")
-    executable_path and print(f"The executable file is '{executable_path}'")
+    entry_point and print(f"The entry point is '{entry_point}'")
     print("Removing temporary files...")
     shutil.rmtree(temp_dir)
 

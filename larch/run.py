@@ -23,9 +23,9 @@ def run_by_name(is_detached, name, args_list):
         print(Fore.RED + f"No executable registered for the package '{name}'")
         sys.exit(1)
 
-    executable_path = Path(LARCH_PROG_DIR / name) / prog.executable
+    entry_point = Path(LARCH_PROG_DIR / name) / prog.entry_point
 
     if is_detached:
-        subprocess.Popen([executable_path, *args_list])
+        subprocess.Popen([entry_point, *args_list])
     else:
-        subprocess.run([executable_path, *args_list])
+        subprocess.run([entry_point, *args_list])
