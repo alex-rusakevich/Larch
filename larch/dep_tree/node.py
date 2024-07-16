@@ -1,9 +1,11 @@
 import re
 import sys
+from typing import List
 
 from colorama import Fore
 
 from larch.database.find_seed import find_seed
+from larch.database.local import get_all_installed_pkg_str
 from larch.sandbox.safe_exec import safe_exec_seed
 
 
@@ -25,6 +27,9 @@ class Node:
         self.parents = parents
         self.children = children
 
+        pkg_str = re.sub(r"\s*", "", pkg_str)
+        self.pkg_str = pkg_str
+
         # region Parse version
         self.name = re.sub(r"(>=|==|!=|<=|<|>).*", "", pkg_str).strip()
 
@@ -44,9 +49,9 @@ class Node:
         # region Get children
         deps = None
 
-        if self.name != "@root":
+        if self.name not in ("@user", "@local"):
             seed_instance = find_seed(self.name, self.comparator, self.ver)
-            seed_code = seed_instance.seed_code
+            self.seed_code = seed_instance.seed_code
 
             self.node_type = (
                 Node.NodeType.INSTALLED
@@ -54,7 +59,7 @@ class Node:
                 else Node.NodeType.REMOTE
             )
 
-            loc = safe_exec_seed(seed_code)
+            loc = safe_exec_seed(self.seed_code)
             deps = loc.get("DEPENDENCIES", None)
 
         if deps:
@@ -70,7 +75,7 @@ class Node:
         else:
             ver = f"{self.comparator}{self.ver}"
 
-        return f"Node(name = {self.name}, version = {ver}, children = {self.children})"
+        return f"Node(name = '{self.name}', version = '{ver}', type = {self.node_type})"  # , children = {self.children}, parents = {self.parents})"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -78,3 +83,55 @@ class Node:
     @staticmethod
     def reset():
         Node.all_nodes = []
+
+    def shake_tree():
+        def merge_nodes(nodes: List[Node]) -> Node:
+            if len(nodes) == 1:
+                return nodes[0]
+
+            if len(nodes) == 0:
+                raise Exception("No nodes to merge")
+
+            merged_node = nodes[0]
+
+            for node in nodes[1:]:
+                merged_node.parents = [*merged_node.parents, *node.parents]
+
+                if Node.NodeType.INSTALLED in (merged_node.node_type, node.node_type):
+                    merged_node.node_type = Node.NodeType.INSTALLED
+
+                if node.ver and not merged_node.ver:
+                    merged_node.ver = node.ver
+
+                if node.ver and merged_node.ver and node.ver != merged_node.ver:
+                    raise Exception(
+                        "Unresolved dependency conflict: "
+                        + f"{node.name}{node.comparator}{node.ver} and "
+                        + f"{merged_node.name}{merged_node.comparator}{merged_node.ver}"
+                    )  # TODO
+
+            return merged_node
+
+        package_str_to_nodes = {}
+
+        for node in Node.all_nodes:
+            package_str = node.name
+
+            if package_str in package_str_to_nodes:
+                package_str_to_nodes[package_str].append(node)
+            else:
+                package_str_to_nodes[package_str] = [node]
+
+        new_node_list = []
+
+        for _, nodes in package_str_to_nodes.items():
+            new_node_list.append(merge_nodes(nodes))
+
+        Node.all_nodes = new_node_list
+
+        return Node.all_nodes
+
+
+Node(
+    [], list(Node([], [], pkg_str) for pkg_str in get_all_installed_pkg_str()), "@local"
+)

@@ -1,19 +1,16 @@
 import os
 import platform
-import re
 import shutil
 import sys
 from pathlib import Path
-from pprint import pprint
 from typing import List, Optional, Tuple
 
 from colorama import Fore
 from sqlalchemy import delete, insert
 
 from larch import LARCH_PROG_DIR, LARCH_REPO, LARCH_TEMP
-from larch.database.local import LocalPackage, get_installed_pkg_by_name
+from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
-from larch.database.local import package_installed
 from larch.database.remote import get_remote_candidate, remote_package_exists
 from larch.dep_tree.node import Node
 from larch.sandbox import passed_funcs
@@ -22,27 +19,17 @@ from larch.utils import progress_fetch, set_print_indentation_lvl
 from larch.utils import sp_print as print
 
 
-def install_seed(seed: str, is_forced=False):
-    if is_forced:
-        print(Fore.YELLOW + f"Forcefully installing '{seed}'...")
-    else:
-        print(Fore.GREEN + f"Installing '{seed}'...")
-
-    set_print_indentation_lvl(1)
-
-    seed_code = ""
-
-    with open(seed, mode="r", encoding="utf8") as seed_file:
-        seed_code = seed_file.read()
+def install_seed(seed_code: str) -> str:
+    set_print_indentation_lvl(0)
 
     loc = safe_exec_seed(seed_code)
 
-    if package_installed(loc["NAME"]) and not is_forced:
-        print(
-            Fore.RED
-            + "Package '{}' has been installed already, stopping".format(loc["NAME"])
-        )
-        sys.exit(1)
+    ver = loc["VERSION"]
+
+    if type(ver) is not str:
+        ver = ".".join(str(i) for i in ver)
+
+    print(Fore.GREEN + "Installing " + loc["NAME"] + "==" + ver + "...")
 
     # region Preparing directories
     temp_dir = Path(LARCH_TEMP / loc["NAME"])
@@ -96,14 +83,6 @@ Make sure that the folder you are trying to delete is not used by a currently ru
         + f"By installing '{loc['NAME']}', you accept it's license: {loc['LICENSE']}"
     )
 
-    # region Install dependencies
-    deps = loc.get("DEPENDENCIES", None)
-
-    if deps:
-        print("Installing dependencies: " + Fore.GREEN + "; ".join(deps) + Fore.RESET)
-        install_packages(deps, is_forced=True)
-    # endregion
-
     for dest_file_name, download_url in loc.get("SOURCE", {}).items():
         progress_fetch(download_url, temp_dir / dest_file_name)
 
@@ -111,7 +90,8 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     loc["install"](temp_dir, dest_dir)  # Execute install func
 
     # region Registering package
-    shutil.copy(seed, dest_dir)
+    open(os.path.join(dest_dir, "larchseed.py"), "w", encoding="utf8").write(seed_code)
+
     entry_point = loc.get("ENTRY_POINT", None)
     ver = loc["VERSION"]
 
@@ -149,28 +129,29 @@ Make sure that the folder you are trying to delete is not used by a currently ru
     set_print_indentation_lvl(0)
 
 
-def install_pkg(
-    pkg_name: str,
-    desired_ver: Optional[Tuple[str, str]] = None,
-    is_forced: bool = False,
-):
+def install_pkg(pkg_name: str, desired_ver: Optional[Tuple[str, str]] = None):
+    # region Skipping installed
+    pkg_str = pkg_name
+
+    if desired_ver and desired_ver[0] and desired_ver[1]:
+        pkg_str += desired_ver[0] + desired_ver[1]
+
+    for node in Node.all_nodes:
+        if node.pkg_str == pkg_str:
+            if node.node_type == Node.NodeType.INSTALLED:
+                return
+
+            break
+    # endregion
+
     ver_str = ""
 
     if desired_ver is not None:
         ver_str = "".join(desired_ver)
 
-    if is_forced:
-        print(Fore.YELLOW + f"Forcefully installing '{pkg_name}{ver_str}'...")
-    else:
-        print(f"Installing '{pkg_name}{ver_str}'...")
+    print(f"Installing '{pkg_name}{ver_str}'...")
 
     set_print_indentation_lvl(1)
-
-    package = get_installed_pkg_by_name(pkg_name)
-
-    if package is not None and not is_forced:
-        print(Fore.RED + f"Package '{pkg_name}' is already installed")
-        sys.exit(1)
 
     if not remote_package_exists(pkg_name):
         print(Fore.RED + f"Remote package with name '{pkg_name}' does not exist")
@@ -203,46 +184,61 @@ def install_pkg(
         seed_path,
     )
 
-    install_seed(seed_path, is_forced)
+    install_seed(Path(seed_path).read_text())
     os.remove(seed_path)
 
 
-def install_packages(pkg_names: List[str], is_forced=False):
+def _install_packages():
     set_print_indentation_lvl(0)
 
-    # region Testing tree
-    Node([], list(Node([], [], pkg_str) for pkg_str in pkg_names), "@root")
-    pprint(Node.all_nodes)
-    # endregion
+    current_queue = []
+    next_queue = []
 
-    for i, val in enumerate(pkg_names):
-        pkg_names[i] = re.sub(r"\s*", "", val)
+    for node in Node.all_nodes:
+        if node.children == []:
+            current_queue.append(node)
 
-    if is_forced:
-        print(
-            Fore.YELLOW
-            + "Forcefully installing the following packages: "
-            + "; ".join(pkg_names)
-        )
-    else:
-        print("Installing the following packages: " + Fore.GREEN + "; ".join(pkg_names))
+    while len(current_queue) > 0:
+        for node in current_queue:
+            if node.name in ("@user", "@local"):
+                continue
 
-    for pkg in pkg_names:
-        _, file_name = os.path.split(pkg)
-        set_print_indentation_lvl(0)
+            if node.node_type == Node.NodeType.REMOTE:
+                install_seed(node.seed_code)
 
-        if file_name == "larchseed.py":
-            install_seed(pkg, is_forced)
+            next_queue = [*next_queue, *node.parents]
+
+        current_queue = next_queue
+        next_queue = []
+
+
+def install_packages(pkg_names: List[str]):
+    set_print_indentation_lvl(0)
+
+    user_root = Node([], list(Node([], [], pkg_str) for pkg_str in pkg_names), "@user")
+    Node.shake_tree()
+
+    # pprint(Node.all_nodes)
+
+    skipped = []
+    installing = []
+
+    for child in user_root.children:
+        if child.node_type == Node.NodeType.INSTALLED:
+            skipped.append(child.pkg_str)
         else:
-            pkg_name = re.sub(r"(>=|==|<=|<|>).*", "", pkg).strip()
+            installing.append(child.pkg_str)
 
-            pkg_ver = re.search(r"(>=|==|<=|<|>)(.*)", pkg)
-            if pkg_ver:
-                pkg_ver = (pkg_ver.group(1), pkg_ver.group(2).strip())
+    skipped and print(
+        Fore.YELLOW
+        + "The following package(s) were installed already: "
+        + "; ".join(skipped)
+    )
 
-            if type(pkg_ver) in (list, tuple):
-                if not pkg_ver[0] or not pkg_ver[1]:
-                    print(Fore.RED + f"Wrong version format: '{pkg}', stopping")
-                    sys.exit(1)
-
-            install_pkg(pkg_name, pkg_ver, is_forced=is_forced)
+    if len(installing) == 0:
+        print(Fore.RED + "Nothing to install, stopping")
+    else:
+        print(
+            "Installing the following package(s): " + Fore.GREEN + "; ".join(installing)
+        )
+        _install_packages()

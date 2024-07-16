@@ -42,3 +42,11 @@ def get_installed_pkg_by_name(pkg_name):
     return local_db_conn.execute(
         select(LocalPackage).where(LocalPackage.c.name == pkg_name)
     ).one_or_none()
+
+
+def get_all_installed():
+    return local_db_conn.execute(select(LocalPackage))
+
+
+def get_all_installed_pkg_str():
+    return [r.name + "==" + r.version for r in get_all_installed()]

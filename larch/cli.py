@@ -36,12 +36,6 @@ def run_cli():
     install_subparser = subparsers.add_parser(
         "install", help="install package using it's name or larchseed.py file"
     )
-    install_subparser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        help="ignore package exists or has lower version than installed",
-    )
     install_subparser.add_argument("packages", nargs="+")
     # endregion
 
@@ -101,7 +95,7 @@ def run_cli():
         sys.exit(0)
 
     if args.command == "install":
-        larch.commands.install.install_packages(args.packages, args.force)
+        larch.commands.install.install_packages(args.packages)
     elif args.command == "uninstall":
         larch.commands.uninstall.uninstall_pkg_names(args.packages)
     elif args.command == "update":

@@ -1,7 +1,7 @@
 import platform
 from pathlib import Path
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 LARCH_DIR = Path().home() / ".larch"
 LARCH_TEMP = LARCH_DIR / "temp"
