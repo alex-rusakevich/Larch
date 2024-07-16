@@ -13,6 +13,7 @@ class Node:
     class NodeType:
         INSTALLED = 0
         REMOTE = 1
+        UNINSTALLING = 2
 
     parents = []
     children = []
@@ -43,7 +44,10 @@ class Node:
                 sys.exit(1)
 
         self.ver = pkg_ver[1] if pkg_ver else None
-        self.comparator = pkg_ver[0] if pkg_ver else None
+        self.comparator = pkg_ver[0] if (pkg_ver and pkg_ver[0]) else None
+
+        if self.ver and not self.comparator:
+            self.comparator = "=="
         # endregion
 
         # region Get children
@@ -51,6 +55,20 @@ class Node:
 
         if self.name not in ("@user", "@local"):
             seed_instance = find_seed(self.name, self.comparator, self.ver)
+
+            if seed_instance is None:
+                ver_info = ""
+
+                if self.comparator and self.ver:
+                    ver_info = self.comparator + self.ver
+
+                print(
+                    Fore.RED
+                    + f"The following package does not exist: '{self.name}{ver_info}'. Stopping"
+                )
+
+                sys.exit(1)
+
             self.seed_code = seed_instance.seed_code
 
             self.node_type = (
@@ -61,6 +79,9 @@ class Node:
 
             loc = safe_exec_seed(self.seed_code)
             deps = loc.get("DEPENDENCIES", None)
+
+        for child in self.children:
+            child.parents.append(self)
 
         if deps:
             for dep in deps:
@@ -75,7 +96,7 @@ class Node:
         else:
             ver = f"{self.comparator}{self.ver}"
 
-        return f"Node(name = '{self.name}', version = '{ver}', type = {self.node_type})"  # , children = {self.children}, parents = {self.parents})"
+        return f"Node(name = '{self.name}', version = '{ver}', type = {self.node_type}, parents = {self.parents})"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -97,11 +118,14 @@ class Node:
             for node in nodes[1:]:
                 merged_node.parents = [*merged_node.parents, *node.parents]
 
-                if Node.NodeType.INSTALLED in (merged_node.node_type, node.node_type):
+                if set([Node.NodeType.INSTALLED, Node.NodeType.REMOTE]) == set(
+                    [merged_node.node_type, node.node_type]
+                ):
                     merged_node.node_type = Node.NodeType.INSTALLED
 
                 if node.ver and not merged_node.ver:
                     merged_node.ver = node.ver
+                    merged_node.comparator = "=="
 
                 if node.ver and merged_node.ver and node.ver != merged_node.ver:
                     raise Exception(

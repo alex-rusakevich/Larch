@@ -10,6 +10,7 @@ from larch import LARCH_PROG_DIR, LARCH_TEMP
 from larch.database.local import LocalPackage
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
+from larch.dep_tree.node import Node
 from larch.sandbox import passed_funcs
 from larch.sandbox.safe_exec import safe_exec_seed
 from larch.utils import progress_fetch, set_print_indentation_lvl
@@ -59,7 +60,31 @@ def uninstall_pkg_name(pkg_name: str):
 
 
 def uninstall_pkg_names(pkg_names: List[str]):
-    print("Uninstalling the following packages: " + Fore.GREEN + "; ".join(pkg_names))
+    set_print_indentation_lvl(0)
+
+    Node([], list(Node([], [], pkg_str) for pkg_str in pkg_names), "@user")
+
+    Node.shake_tree()
+
+    for pkg_name in pkg_names:
+        broken_parent_pkg = []
+
+        for node in Node.all_nodes:
+            if node.name == pkg_name:  # Found corresponding node in the tree
+                for node_parent in node.parents:
+                    if node_parent.name not in ("@user", "@local", *pkg_names):
+                        broken_parent_pkg.append(node_parent)
+                break
+
+        if broken_parent_pkg:
+            broken_parent_pkg_names = "; ".join(set(i.name for i in broken_parent_pkg))
+            print(
+                Fore.RED
+                + f"Cannot uninstall '{pkg_name}' because it will break the following packages: {broken_parent_pkg_names}"
+            )
+            sys.exit(1)
+
+    print("Uninstalling the following package(s): " + Fore.GREEN + "; ".join(pkg_names))
 
     for pkg_name in pkg_names:
         uninstall_pkg_name(pkg_name)
