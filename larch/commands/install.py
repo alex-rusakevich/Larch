@@ -4,6 +4,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from pprint import pprint
 from typing import List, Optional, Tuple
 
 from colorama import Fore
@@ -14,6 +15,7 @@ from larch.database.local import LocalPackage, get_installed_pkg_by_name
 from larch.database.local import local_db_conn as loccon
 from larch.database.local import package_installed
 from larch.database.remote import get_remote_candidate, remote_package_exists
+from larch.dep_tree.node import Node
 from larch.sandbox import passed_funcs
 from larch.sandbox.safe_exec import safe_exec_seed
 from larch.utils import progress_fetch, set_print_indentation_lvl
@@ -167,7 +169,7 @@ def install_pkg(
     package = get_installed_pkg_by_name(pkg_name)
 
     if package is not None and not is_forced:
-        print(Fore.RED + f"Package '{pkg_name}' is already installed, stopping")
+        print(Fore.RED + f"Package '{pkg_name}' is already installed")
         sys.exit(1)
 
     if not remote_package_exists(pkg_name):
@@ -207,6 +209,11 @@ def install_pkg(
 
 def install_packages(pkg_names: List[str], is_forced=False):
     set_print_indentation_lvl(0)
+
+    # region Testing tree
+    Node([], list(Node([], [], pkg_str) for pkg_str in pkg_names), "@root")
+    pprint(Node.all_nodes)
+    # endregion
 
     for i, val in enumerate(pkg_names):
         pkg_names[i] = re.sub(r"\s*", "", val)

@@ -59,6 +59,7 @@ def get_remote_candidate(pkg_name: str, desired_ver: Optional[Tuple[str, str]]):
             "<=": candidate_ver.__le__,
             ">": candidate_ver.__gt__,
             "<": candidate_ver.__lt__,
+            "!=": candidate_ver.__ne__,
         }[operation]
 
         return compare_candidate_to(desired_ver_tuple)
@@ -74,7 +75,7 @@ def get_remote_candidate(pkg_name: str, desired_ver: Optional[Tuple[str, str]]):
     candidates = list(candidates)
     candidates.sort(key=lambda x: str_to_version_tuple(x.ver))
 
-    if desired_ver is not None:
+    if desired_ver is not None and desired_ver[0] and desired_ver[1]:
         candidates = list(filter(candidate_version_suits, candidates))
 
     if candidates not in [None, [], ()]:
